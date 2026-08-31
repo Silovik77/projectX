@@ -1,1 +1,2 @@
-Nothing should be ignored based on the provided file changes. The modification of 'ProjectX/ProjectX.toc' appears to be a source/config file change without any build artifacts, dependencies, or temporary files present in the change list.
+# Project-specific
+ProjectX/*.toc
