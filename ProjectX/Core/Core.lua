@@ -49,9 +49,15 @@ function addon:Initialize()
     end
     
     -- Load locale module
+    ProjectXLocale = ProjectXLocale or {}
     self.Locale = ProjectXLocale[locale] or ProjectXLocale["enUS"]
     
-    print("|cFF00FF00ProjectX|r: " .. self.Locale.LOADED)
+    if not self.Locale then
+        print("|cFFFF0000ProjectX Error: Locale not found for " .. locale .. "|r")
+        self.Locale = {LOADED = "Loaded", SAVED = "Data saved"}
+    else
+        print("|cFF00FF00ProjectX|r: " .. (self.Locale.LOADED or "Loaded"))
+    end
     
     -- Register events via frame
     frame:RegisterEvent("PLAYER_LOGIN")

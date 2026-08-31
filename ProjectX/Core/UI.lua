@@ -75,11 +75,8 @@ function UI:CreateMainWindow()
     local tabs = {}
     local tabFrames = {}
     local tabNames = {
-        { id = "activity", text = L.ACTIVITY_TITLE or "Activity" },
-        { id = "professions", text = L.PROFESSIONS_TITLE or "Professions" },
-        { id = "currencies", text = L.CURRENCIES_TITLE or "Currencies" },
-        { id = "accountant", text = L.ACCOUNTANT_TITLE or "Gold" },
-        { id = "settings", text = L.CONFIG or "Settings" },
+        { id = "activity", text = L.ACTIVITY or "Activity" },
+        { id = "settings", text = L.SETTINGS or "Settings" },
     }
     
     local tabContainer = CreateFrame("Frame", nil, frame)
@@ -128,9 +125,6 @@ function UI:CreateMainWindow()
     
     -- Initialize tab content
     self:InitializeActivityTab(tabFrames.activity)
-    self:InitializeProfessionsTab(tabFrames.professions)
-    self:InitializeCurrenciesTab(tabFrames.currencies)
-    self:InitializeAccountantTab(tabFrames.accountant)
     self:InitializeSettingsTab(tabFrames.settings)
     
     self.mainFrame = frame
@@ -159,7 +153,7 @@ function UI:SwitchTab(tabId)
     end
     
     -- Select corresponding tab button
-    local tabIndex = { activity = 1, professions = 2, currencies = 3, accountant = 4, settings = 5 }
+    local tabIndex = { activity = 1, settings = 2 }
     local tabIdx = tabIndex[tabId]
     if tabIdx and self.mainFrame.tabs[tabIdx] then
         PanelTemplates_SetDisabledTabState(self.mainFrame.tabs[tabIdx], false)
@@ -173,12 +167,6 @@ end
 function UI:UpdateTabContent(tabId)
     if tabId == "activity" and addon.Activity then
         self:UpdateActivityTab()
-    elseif tabId == "professions" and addon.Professions then
-        self:UpdateProfessionsTab()
-    elseif tabId == "currencies" and addon.Currencies then
-        self:UpdateCurrenciesTab()
-    elseif tabId == "accountant" and addon.Accountant then
-        self:UpdateAccountantTab()
     end
 end
 
@@ -248,112 +236,13 @@ function UI:UpdateActivityTab()
     end
 end
 
--- Initialize Professions tab
-function UI:InitializeProfessionsTab(frame)
-    local scroll = CreateFrame("ScrollFrame", nil, frame, "UIPanelScrollFrameTemplate")
-    scroll:SetPoint("TOPLEFT", frame, "TOPLEFT", 10, -10)
-    scroll:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -30, 10)
-    
-    local content = CreateFrame("Frame", nil, scroll)
-    content:SetSize(scroll:GetWidth(), 400)
-    scroll:SetScrollChild(content)
-    
-    local title = content:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-    title:SetPoint("TOP", content, "TOP", 0, -10)
-    title:SetText(L.PROFESSIONS_TITLE or "Professions")
-    
-    local info = content:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-    info:SetPoint("TOP", title, "BOTTOM", 0, -10)
-    info:SetJustifyH("LEFT")
-    info:SetWidth(content:GetWidth() - 20)
-    info:SetText("Profession module coming soon...")
-    
-    frame.info = info
-    frame.content = content
-end
-
--- Update Professions tab
-function UI:UpdateProfessionsTab()
-    if not self.mainFrame or not self.mainFrame.tabFrames.professions then return end
-    local frame = self.mainFrame.tabFrames.professions
-    if not frame.info then return end
-    
-    frame.info:SetText("Profession module coming soon...")
-end
-
--- Initialize Currencies tab
-function UI:InitializeCurrenciesTab(frame)
-    local scroll = CreateFrame("ScrollFrame", nil, frame, "UIPanelScrollFrameTemplate")
-    scroll:SetPoint("TOPLEFT", frame, "TOPLEFT", 10, -10)
-    scroll:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -30, 10)
-    
-    local content = CreateFrame("Frame", nil, scroll)
-    content:SetSize(scroll:GetWidth(), 400)
-    scroll:SetScrollChild(content)
-    
-    local title = content:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-    title:SetPoint("TOP", content, "TOP", 0, -10)
-    title:SetText(L.CURRENCIES_TITLE or "Currencies")
-    
-    local info = content:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-    info:SetPoint("TOP", title, "BOTTOM", 0, -10)
-    info:SetJustifyH("LEFT")
-    info:SetWidth(content:GetWidth() - 20)
-    info:SetText("Currency module coming soon...")
-    
-    frame.info = info
-    frame.content = content
-end
-
--- Update Currencies tab
-function UI:UpdateCurrenciesTab()
-    if not self.mainFrame or not self.mainFrame.tabFrames.currencies then return end
-    local frame = self.mainFrame.tabFrames.currencies
-    if not frame.info then return end
-    
-    frame.info:SetText("Currency module coming soon...")
-end
-
--- Initialize Accountant tab
-function UI:InitializeAccountantTab(frame)
-    local scroll = CreateFrame("ScrollFrame", nil, frame, "UIPanelScrollFrameTemplate")
-    scroll:SetPoint("TOPLEFT", frame, "TOPLEFT", 10, -10)
-    scroll:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -30, 10)
-    
-    local content = CreateFrame("Frame", nil, scroll)
-    content:SetSize(scroll:GetWidth(), 400)
-    scroll:SetScrollChild(content)
-    
-    local title = content:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-    title:SetPoint("TOP", content, "TOP", 0, -10)
-    title:SetText(L.ACCOUNTANT_TITLE or "Gold Tracker")
-    
-    local info = content:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-    info:SetPoint("TOP", title, "BOTTOM", 0, -10)
-    info:SetJustifyH("LEFT")
-    info:SetWidth(content:GetWidth() - 20)
-    info:SetText("Gold tracking module coming soon...")
-    
-    frame.info = info
-    frame.content = content
-end
-
--- Update Accountant tab
-function UI:UpdateAccountantTab()
-    if not self.mainFrame or not self.mainFrame.tabFrames.accountant then return end
-    local frame = self.mainFrame.tabFrames.accountant
-    if not frame.info then return end
-    
-    frame.info:SetText("Gold tracking module coming soon...")
-end
-
 -- Initialize Settings tab
 function UI:InitializeSettingsTab(frame)
     local content = frame
     
     local title = content:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     title:SetPoint("TOP", content, "TOP", 0, -20)
-    title:SetText(L.CONFIG or "Settings")
+    title:SetText(L.SETTINGS or "Settings")
     
     -- Minimap button toggle
     local mmBtnLabel = content:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
