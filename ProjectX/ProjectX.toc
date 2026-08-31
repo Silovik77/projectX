@@ -1,4 +1,4 @@
-# Interface: 120100
+## Interface: 120100
 ## Title: ProjectX
 ## Title-ruRU: ProjectX
 ## Notes: Modular addon for tracking activities, professions, currencies and gold

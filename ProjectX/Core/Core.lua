@@ -38,9 +38,9 @@ function addon:Initialize()
     
     print("|cFF00FF00ProjectX|r: " .. self.Locale.LOADED)
     
-    -- Register events
-    self:RegisterEvent("PLAYER_LOGIN")
-    self:RegisterEvent("PLAYER_LOGOUT")
+    -- Register events via frame
+    frame:RegisterEvent("PLAYER_LOGIN")
+    frame:RegisterEvent("PLAYER_LOGOUT")
 end
 
 -- Event handler
