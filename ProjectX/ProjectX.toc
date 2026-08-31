@@ -13,8 +13,8 @@ Core\UI.lua
 Core\MinimapButton.lua
 
 # Localization
-Core\Locale\enUS.lua
-Core\Locale\ruRU.lua
+Locale\enUS.lua
+Locale\ruRU.lua
 
 # Modules - Active
 Modules\Activity\Activity.lua
