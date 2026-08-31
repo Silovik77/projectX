@@ -4,20 +4,23 @@
 local addonName, addon = ...
 ProjectX = addon
 
--- Create frame for event handling FIRST (before any functions that use it)
-local frame = CreateFrame("Frame")
-frame:SetScript("OnEvent", function(self, event, ...)
-    if event == "ADDON_LOADED" then
-        if arg1 == addonName then
-            addon:Initialize()
-            self:UnregisterEvent("ADDON_LOADED")
-        end
-    else
-        addon:OnEvent(event, ...)
-    end
-end)
-
-addon.frame = frame
+-- Initialize database IMMEDIATELY before anything else
+ProjectXDB = ProjectXDB or {}
+ProjectXDB.global = ProjectXDB.global or {}
+ProjectXDB.chars = ProjectXDB.chars or {}
+ProjectXDB.ui = ProjectXDB.ui or {
+    enabled = true,
+    minimapButton = true,
+    windowPos = { x = 100, y = -100 },
+    windowScale = 1.0,
+    activeTab = "activity",
+}
+ProjectXDB.minimapButton = ProjectXDB.minimapButton or {
+    enabled = true,
+    position = 0,
+    radius = 80,
+}
+ProjectXDB.activity = ProjectXDB.activity or {}
 
 -- Default database settings
 local defaults = {
@@ -30,20 +33,27 @@ local defaults = {
     },
 }
 
+-- Create frame for event handling
+local frame = CreateFrame("Frame")
+addon.frame = frame
+
+frame:SetScript("OnEvent", function(self, event, arg1, ...)
+    if event == "ADDON_LOADED" then
+        if arg1 == addonName then
+            addon:Initialize()
+            self:UnregisterEvent("ADDON_LOADED")
+        end
+    elseif event == "PLAYER_LOGIN" then
+        addon:OnLogin()
+    elseif event == "PLAYER_LOGOUT" then
+        addon:OnLogout()
+    end
+end)
+
 -- Initialize the addon
 function addon:Initialize()
-    -- Load saved variables or create new database
-    ProjectXDB = ProjectXDB or {}
-    
-    -- Merge defaults
-    for key, value in pairs(defaults.global) do
-        if ProjectXDB[key] == nil then
-            ProjectXDB[key] = value
-        end
-    end
-    
     -- Set locale
-    local locale = ProjectXDB.locale
+    local locale = ProjectXDB.global.locale or "auto"
     if locale == "auto" then
         locale = GetLocale()
     end
@@ -59,7 +69,7 @@ function addon:Initialize()
         print("|cFF00FF00ProjectX|r: " .. (self.Locale.LOADED or "Loaded"))
     end
     
-    -- Register events via frame
+    -- Register events
     frame:RegisterEvent("PLAYER_LOGIN")
     frame:RegisterEvent("PLAYER_LOGOUT")
 end
@@ -99,13 +109,11 @@ function addon:OnLogin()
     
     -- Initialize modules
     if self.Activity and self.Activity.Initialize then self.Activity:Initialize() end
-    if self.Professions and self.Professions.Initialize then self.Professions:Initialize() end
-    if self.Currencies and self.Currencies.Initialize then self.Currencies:Initialize() end
-    if self.Accountant and self.Accountant.Initialize then self.Accountant:Initialize() end
+    if self.MinimapButton and self.MinimapButton.Initialize then self.MinimapButton:Initialize() end
     
     -- Initialize UI after modules
     C_Timer.After(0.1, function()
-        if self.InitUI then self:InitUI() end
+        if self.UI and self.UI.Initialize then self.UI:Initialize() end
     end)
 end
 
