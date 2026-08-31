@@ -92,12 +92,15 @@ function addon:OnLogin()
     ProjectXDB.lastChar = playerName
     
     -- Initialize modules
-    if self.UI then self.UI:Initialize() end
-    if self.MinimapButton then self.MinimapButton:Initialize() end
-    if self.Activity then self.Activity:Initialize() end
-    if self.Professions then self.Professions:Initialize() end
-    if self.Currencies then self.Currencies:Initialize() end
-    if self.Accountant then self.Accountant:Initialize() end
+    if self.Activity and self.Activity.Initialize then self.Activity:Initialize() end
+    if self.Professions and self.Professions.Initialize then self.Professions:Initialize() end
+    if self.Currencies and self.Currencies.Initialize then self.Currencies:Initialize() end
+    if self.Accountant and self.Accountant.Initialize then self.Accountant:Initialize() end
+    
+    -- Initialize UI after modules
+    C_Timer.After(0.1, function()
+        if self.InitUI then self:InitUI() end
+    end)
 end
 
 -- Logout handler
