@@ -20,6 +20,51 @@ local defaults = {
     activeTab = "activity",
 }
 
+-- Helper function to create a custom tab button
+local function CreateCustomTabButton(parent, text, onClick)
+    local btn = CreateFrame("Button", nil, parent, "BackdropTemplate")
+    btn:SetSize(100, 32)
+    btn:SetBackdrop({
+        bgFile = "Interface/Tooltips/UI-Tooltip-Background",
+        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+        tile = true,
+        tileSize = 16,
+        edgeSize = 12,
+        insets = { left = 2, right = 2, top = 2, bottom = 2 }
+    })
+    btn:SetBackdropColor(0.15, 0.15, 0.15, 0.8)
+    btn:SetBackdropBorderColor(0.4, 0.4, 0.4, 0.8)
+    
+    local label = btn:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    label:SetText(text)
+    label:SetPoint("CENTER", btn, "CENTER", 0, 1)
+    btn.label = label
+    
+    btn:SetScript("OnClick", onClick)
+    btn:SetScript("OnEnter", function(self)
+        self:SetBackdropColor(0.2, 0.2, 0.2, 0.9)
+        self:SetBackdropBorderColor(0.6, 0.6, 0.6, 1)
+    end)
+    btn:SetScript("OnLeave", function(self)
+        self:SetBackdropColor(0.15, 0.15, 0.15, 0.8)
+        self:SetBackdropBorderColor(0.4, 0.4, 0.4, 0.8)
+    end)
+    
+    return btn
+end
+
+local function SetTabSelected(tab, selected)
+    if selected then
+        tab:SetBackdropColor(0.25, 0.25, 0.25, 0.95)
+        tab:SetBackdropBorderColor(0.8, 0.8, 0.8, 1)
+        tab.label:SetTextColor(1, 1, 1)
+    else
+        tab:SetBackdropColor(0.15, 0.15, 0.15, 0.8)
+        tab:SetBackdropBorderColor(0.4, 0.4, 0.4, 0.8)
+        tab.label:SetTextColor(0.7, 0.7, 0.7)
+    end
+end
+
 -- Create main window
 function UI:CreateMainWindow()
     if self.mainFrame then return self.mainFrame end
@@ -67,7 +112,7 @@ function UI:CreateMainWindow()
     -- Title text
     local title = titleBar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     title:SetPoint("LEFT", titleBar, "LEFT", 8, 0)
-    title:SetText("|cFF00FF00ProjectX|r - " .. LocaleString("STATUS", "Status"))
+    title:SetText("|cFF00FF00ProjectX|r - " .. LocaleString("MAIN_TITLE", "Status"))
     
     -- Close button
     local closeBtn = CreateFrame("Button", nil, titleBar, "UIPanelCloseButton")
@@ -76,7 +121,7 @@ function UI:CreateMainWindow()
         frame:Hide()
     end)
     
-    -- Tab system
+    -- Tab system with custom buttons
     local tabs = {}
     local tabFrames = {}
     local tabNames = {
@@ -85,30 +130,26 @@ function UI:CreateMainWindow()
     }
     
     local tabContainer = CreateFrame("Frame", nil, frame)
-    tabContainer:SetHeight(30)
-    tabContainer:SetPoint("TOPLEFT", titleBar, "BOTTOMLEFT", 0, -2)
-    tabContainer:SetPoint("TOPRIGHT", titleBar, "BOTTOMRIGHT", 0, -2)
+    tabContainer:SetHeight(36)
+    tabContainer:SetPoint("TOPLEFT", titleBar, "BOTTOMLEFT", 0, 0)
+    tabContainer:SetPoint("TOPRIGHT", titleBar, "BOTTOMRIGHT", 0, 0)
     
     for i, tabInfo in ipairs(tabNames) do
-        local tab = CreateFrame("Button", "ProjectXTab" .. i, tabContainer, "CharacterFrameTabButtonTemplate")
-        tab:SetText(tabInfo.text)
-        tab:SetID(i)
-        
-        if i == 1 then
-            tab:SetPoint("TOPLEFT", tabContainer, "TOPLEFT", 10, 0)
-        else
-            tab:SetPoint("TOPLEFT", tabs[i-1], "TOPRIGHT", -10, 0)
-        end
-        
-        tab:SetScript("OnClick", function(self)
+        local tab = CreateCustomTabButton(tabContainer, tabInfo.text, function()
             UI:SwitchTab(tabInfo.id)
         end)
+        
+        if i == 1 then
+            tab:SetPoint("TOPLEFT", tabContainer, "TOPLEFT", 8, -2)
+        else
+            tab:SetPoint("TOPLEFT", tabs[i-1], "TOPRIGHT", 4, 0)
+        end
         
         tabs[i] = tab
         
         -- Create content frame for this tab
         local content = CreateFrame("Frame", "ProjectXTabContent" .. i, frame, "BackdropTemplate")
-        content:SetPoint("TOPLEFT", tabContainer, "BOTTOMLEFT", 0, -8)
+        content:SetPoint("TOPLEFT", tabContainer, "BOTTOMLEFT", 0, -4)
         content:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -4, 4)
         content:SetBackdrop({
             bgFile = "Interface/Tooltips/UI-Tooltip-Background",
@@ -147,7 +188,7 @@ function UI:SwitchTab(tabId)
     
     -- Deselect all tabs
     for i, tab in ipairs(self.mainFrame.tabs) do
-        PanelTemplates_SetDisabledTabState(tab, true)
+        SetTabSelected(tab, false)
     end
     
     -- Show selected tab
@@ -161,8 +202,7 @@ function UI:SwitchTab(tabId)
     local tabIndex = { activity = 1, settings = 2 }
     local tabIdx = tabIndex[tabId]
     if tabIdx and self.mainFrame.tabs[tabIdx] then
-        PanelTemplates_SetDisabledTabState(self.mainFrame.tabs[tabIdx], false)
-        PanelTemplates_SelectTab(self.mainFrame.tabs[tabIdx])
+        SetTabSelected(self.mainFrame.tabs[tabIdx], true)
     end
     
     ProjectXDB.ui.activeTab = tabId

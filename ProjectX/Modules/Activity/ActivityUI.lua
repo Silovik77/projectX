@@ -4,6 +4,13 @@
 local addonName, addon = ...
 local Activity = addon.Activity  -- Исправлено: прямой доступ к модулю
 
+-- Защитная функция для получения локализованной строки
+local function LocaleString(key, default)
+    local value = addon.Locale and addon.Locale[key]
+    if value then return value end
+    return default or key
+end
+
 -- Создаем фрейм для UI
 local frame = CreateFrame("Frame", "ProjectXActivityFrame", UIParent, "BackdropTemplate")
 frame:SetSize(600, 400)
@@ -30,7 +37,7 @@ frame:SetBackdropBorderColor(0.4, 0.4, 0.4)
 -- Заголовок
 local title = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 title:SetPoint("TOPLEFT", 16, -16)
-title:SetText(addon.Locale.ACTIVITY_TITLE or "Activity Tracker")
+title:SetText(LocaleString("ACTIVITY_TITLE", "Activity Tracker"))
 
 -- Кнопка закрытия
 local closeButton = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
@@ -60,16 +67,63 @@ function Activity:UpdateUI()
         if child ~= scrollChild then child:Hide() end
     end
     
-    local data = self:GetData()
-    local yOffset = 0
+    local summary = self:GetSummary()  -- Исправлено: используем GetSummary вместо GetData
+    local yOffset = -8
     
-    -- Пример отображения данных (будет доработано)
-    local infoText = scrollChild:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-    infoText:SetPoint("TOPLEFT", 8, -8)
-    infoText:SetJustifyH("LEFT")
-    infoText:SetText("Activity Module Loaded\nData: " .. (data and "OK" or "No Data"))
+    -- Отображение данных
+    if summary and (summary.raids or summary.mythicPlus or summary.vault or summary.quests) then
+        if summary.raids and next(summary.raids) then
+            local raidCount = 0
+            for _, _ in pairs(summary.raids) do raidCount = raidCount + 1 end
+            local line = scrollChild:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+            line:SetPoint("TOPLEFT", 16, yOffset)
+            line:SetText(LocaleString("RAID_TRACKED", "Raids tracked") .. ": " .. raidCount)
+            yOffset = yOffset - 18
+        end
+        
+        if summary.mythicPlus and next(summary.mythicPlus) then
+            local mplusCount = 0
+            for _, _ in pairs(summary.mythicPlus) do mplusCount = mplusCount + 1 end
+            local line = scrollChild:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+            line:SetPoint("TOPLEFT", 16, yOffset)
+            line:SetText(LocaleString("MYTHIC_PLUS_RUNS", "Mythic+ runs") .. ": " .. mplusCount)
+            yOffset = yOffset - 18
+        end
+        
+        if summary.vault and summary.vault.lastUpdate then
+            local line = scrollChild:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+            line:SetPoint("TOPLEFT", 16, yOffset)
+            line:SetText(LocaleString("GREAT_VAULT_UPDATED", "Great Vault updated"))
+            yOffset = yOffset - 18
+        end
+        
+        if summary.quests then
+            local dailyCount = 0
+            if summary.quests.daily then
+                for _ in pairs(summary.quests.daily) do dailyCount = dailyCount + 1 end
+            end
+            local weeklyCount = 0
+            if summary.quests.weekly then
+                for _ in pairs(summary.quests.weekly) do weeklyCount = weeklyCount + 1 end
+            end
+            if dailyCount > 0 or weeklyCount > 0 then
+                local line = scrollChild:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+                line:SetPoint("TOPLEFT", 16, yOffset)
+                line:SetText(LocaleString("DAILY_QUESTS", "Daily Quests") .. ": " .. dailyCount .. ", " .. LocaleString("WEEKLY_QUESTS", "Weekly Quests") .. ": " .. weeklyCount)
+                yOffset = yOffset - 18
+            end
+        end
+    end
     
-    scrollChild:SetHeight(50)
+    -- Если ничего не показано
+    if yOffset == -8 then
+        local line = scrollChild:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+        line:SetPoint("TOPLEFT", 16, yOffset)
+        line:SetText(LocaleString("NO_ACTIVITY_DATA", "No activity data yet. Play some content!"))
+        yOffset = yOffset - 18
+    end
+    
+    scrollChild:SetHeight(math.abs(yOffset) + 20)
 end
 
 -- Показ окна
