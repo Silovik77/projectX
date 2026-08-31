@@ -77,6 +77,8 @@ function addon:OnLogin()
     ProjectXDB.lastChar = playerName
     
     -- Initialize modules
+    if self.UI then self.UI:Initialize() end
+    if self.MinimapButton then self.MinimapButton:Initialize() end
     if self.Activity then self.Activity:Initialize() end
     if self.Professions then self.Professions:Initialize() end
     if self.Currencies then self.Currencies:Initialize() end
@@ -123,14 +125,25 @@ function addon:HandleCommand(msg)
         print("  /px help - Show this help")
         print("  /px status - Show addon status")
         print("  /px debug - Toggle debug mode")
+        print("  /px ui - Toggle main window")
+        print("  /px config - Open settings")
     elseif msg == "status" then
         print("|cFF00FF00ProjectX|r Status:")
-        print("  Version: 0.1.0")
+        print("  Version: 0.2.0")
         print("  Characters tracked: " .. (ProjectXDB.chars and table.getn(ProjectXDB.chars) or 0))
         print("  Locale: " .. (ProjectXDB.locale or "auto"))
     elseif msg == "debug" then
         ProjectXDB.debug = not ProjectXDB.debug
         print("|cFF00FF00ProjectX|r: Debug mode " .. (ProjectXDB.debug and "enabled" or "disabled"))
+    elseif msg == "ui" then
+        if self.UI then
+            self.UI:ToggleWindow()
+        end
+    elseif msg == "config" then
+        if self.UI then
+            self.UI:ShowWindow()
+            self.UI:SwitchTab("settings")
+        end
     end
 end
 

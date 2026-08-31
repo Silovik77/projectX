@@ -56,5 +56,11 @@ L.ENABLED = "Включено"
 L.DISABLED = "Отключено"
 L.CONFIG = "Настройки"
 L.STATUS = "Статус"
+L.OPEN_WINDOW = "Открыть окно"
+L.TOGGLE_WINDOW = "Переключить окно"
+L.HIDE_BUTTON = "Скрыть кнопку миникарты"
+L.SHOW_MINIMAP_BUTTON = "Показать кнопку миникарты"
+L.WINDOW_SCALE = "Масштаб окна"
+L.RESET_POSITION = "Сбросить позицию"
 
 ProjectXLocale["ruRU"] = L

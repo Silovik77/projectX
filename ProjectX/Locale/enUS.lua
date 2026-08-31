@@ -56,5 +56,11 @@ L.ENABLED = "Enabled"
 L.DISABLED = "Disabled"
 L.CONFIG = "Configuration"
 L.STATUS = "Status"
+L.OPEN_WINDOW = "Open Window"
+L.TOGGLE_WINDOW = "Toggle Window"
+L.HIDE_BUTTON = "Hide Minimap Button"
+L.SHOW_MINIMAP_BUTTON = "Show minimap button"
+L.WINDOW_SCALE = "Window Scale"
+L.RESET_POSITION = "Reset Position"
 
 ProjectXLocale["enUS"] = L

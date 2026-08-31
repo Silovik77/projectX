@@ -1,10 +1,10 @@
-## Interface: 110005, 110007, 120000, 120100
+# Interface: 120100
 ## Title: ProjectX
 ## Title-ruRU: ProjectX
 ## Notes: Modular addon for tracking activities, professions, currencies and gold
 ## Notes-ruRU: Модульный аддон для отслеживания активностей, профессий, валют и золота
 ## Author: YourName
-## Version: 0.1.0
+## Version: 0.2.0
 ## SavedVariables: ProjectXDB
 ## X-Category: Activity, Profession, Economy
 ## X-License: MIT
@@ -13,6 +13,8 @@
 Core\Core.lua
 Core\Characters.lua
 Core\Commands.lua
+Core\UI.lua
+Core\MinimapButton.lua
 
 # Locale
 Locale\Locale.lua
