@@ -6,10 +6,43 @@ local UI = {}
 
 -- Защитная функция для получения локализованной строки
 local function LocaleString(key, default)
-    local value = addon.Locale and addon.Locale[key]
-    if value then return value end
-    return default or key
+    if not addon.Locale then return default or key end
+    local value = addon.Locale[key]
+    return value or default or key
 end
+
+-- Инициализация базы данных UI, если она отсутствует
+local function EnsureDB()
+    if not ProjectXDB then ProjectXDB = {} end
+    if not ProjectXDB.ui then
+        ProjectXDB.ui = {
+            enabled = true,
+            minimapButton = true,
+            windowPos = { x = 100, y = -100 },
+            windowScale = 1.0,
+            activeTab = "activity",
+        }
+    end
+    -- Гарантируем наличие всех полей
+    if ProjectXDB.ui.windowPos == nil then
+        ProjectXDB.ui.windowPos = { x = 100, y = -100 }
+    end
+    if ProjectXDB.ui.windowScale == nil then
+        ProjectXDB.ui.windowScale = 1.0
+    end
+    if ProjectXDB.ui.activeTab == nil then
+        ProjectXDB.ui.activeTab = "activity"
+    end
+    if ProjectXDB.ui.minimapButton == nil then
+        ProjectXDB.ui.minimapButton = true
+    end
+    if ProjectXDB.ui.enabled == nil then
+        ProjectXDB.ui.enabled = true
+    end
+end
+
+-- Вызываем EnsureDB сразу при загрузке модуля
+EnsureDB()
 
 -- Default UI settings
 local defaults = {
@@ -283,6 +316,8 @@ end
 
 -- Initialize Settings tab
 function UI:InitializeSettingsTab(frame)
+    EnsureDB() -- Гарантируем инициализацию БД перед использованием
+    
     local content = frame
     
     local title = content:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
@@ -299,12 +334,10 @@ function UI:InitializeSettingsTab(frame)
     mmBtnCheck:SetChecked(ProjectXDB.ui.minimapButton)
     mmBtnCheck:SetScript("OnClick", function(self)
         ProjectXDB.ui.minimapButton = self:GetChecked()
-        if ProjectXDB.ui.minimapButton then
-            if addon.MinimapButton then
+        if addon.MinimapButton then
+            if ProjectXDB.ui.minimapButton then
                 addon.MinimapButton:Show()
-            end
-        else
-            if addon.MinimapButton then
+            else
                 addon.MinimapButton:Hide()
             end
         end
@@ -320,12 +353,12 @@ function UI:InitializeSettingsTab(frame)
     scaleSlider:SetOrientation("HORIZONTAL")
     scaleSlider:SetMinMaxValues(0.5, 2.0)
     scaleSlider:SetValueStep(0.1)
-    scaleSlider:SetValue(ProjectXDB.ui.windowScale)
+    scaleSlider:SetValue(ProjectXDB.ui.windowScale or 1.0)
     scaleSlider:SetWidth(150)
     
     local scaleText = scaleSlider:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     scaleText:SetPoint("BOTTOM", scaleSlider, "TOP", 0, 5)
-    scaleText:SetText(string.format("%.1f", ProjectXDB.ui.windowScale))
+    scaleText:SetText(string.format("%.1f", ProjectXDB.ui.windowScale or 1.0))
     
     scaleSlider:SetScript("OnValueChanged", function(self, value)
         scaleText:SetText(string.format("%.1f", value))

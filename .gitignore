@@ -1,49 +1,54 @@
-# Compiled and build artifacts
-*.pyc
-__pycache__/
-*.o
-*.obj
-*.class
-*.exe
-*.dll
-*.so
-*.a
-*.out
+```
+# Lua build artifacts and caches
+*.luac
+.luac
+lua/
+?.lua
+ProjectX/Core/__pycache__/
+ProjectX/Modules/Activity/__pycache__/
 
 # Dependencies
-.venv/
-venv/
-node_modules/
-dist/
-build/
-target/
-.gradle/
+lib/
+libs/
+dependencies/
+vendor/
 
-# Logs and temp files
+# Build and distribution
+build/
+dist/
+release/
+target/
+
+# Logs and temporary files
 *.log
 *.tmp
-*.swp
-*.swo
+*.temp
+*.cache
 
-# Environment
+# Environment and local config
 .env
 .env.local
-*.env.*
+.env.*
+.local
+
+# OS specific
+.DS_Store
+Thumbs.db
 
 # Editors
 .vscode/
 .idea/
+*.swp
+*.swo
 
-# System files
-.DS_Store
-Thumbs.db
-
-# Coverage
+# Coverage and testing
 coverage/
 htmlcov/
 .coverage
+*.gcov
+*.profraw
 
-# Compressed files
+# Compression artifacts
 *.zip
 *.gz
 *.tar
@@ -66,7 +71,4 @@ htmlcov/
 *.tar.bz2
 *.tar.xz
 *.tar.zst
-
-# Cache directories
-.mypy_cache/
-.pytest_cache/
+```

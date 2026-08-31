@@ -6,9 +6,9 @@ local Activity = addon.Activity  -- Исправлено: прямой дост�
 
 -- Защитная функция для получения локализованной строки
 local function LocaleString(key, default)
-    local value = addon.Locale and addon.Locale[key]
-    if value then return value end
-    return default or key
+    if not addon.Locale then return default or key end
+    local value = addon.Locale[key]
+    return value or default or key
 end
 
 -- Создаем фрейм для UI
