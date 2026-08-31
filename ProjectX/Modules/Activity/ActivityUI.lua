@@ -2,7 +2,7 @@
 -- UI компонент для модуля Активностей
 
 local addonName, addon = ...
-local Activity = addon.Modules.Activity
+local Activity = addon.Activity  -- Исправлено: прямой доступ к модулю
 
 -- Создаем фрейм для UI
 local frame = CreateFrame("Frame", "ProjectXActivityFrame", UIParent, "BackdropTemplate")
