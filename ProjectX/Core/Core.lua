@@ -4,6 +4,21 @@
 local addonName, addon = ...
 ProjectX = addon
 
+-- Create frame for event handling FIRST (before any functions that use it)
+local frame = CreateFrame("Frame")
+frame:SetScript("OnEvent", function(self, event, ...)
+    if event == "ADDON_LOADED" then
+        if arg1 == addonName then
+            addon:Initialize()
+            self:UnregisterEvent("ADDON_LOADED")
+        end
+    else
+        addon:OnEvent(event, ...)
+    end
+end)
+
+addon.frame = frame
+
 -- Default database settings
 local defaults = {
     global = {
@@ -102,14 +117,6 @@ function addon:GetAllCharacters()
     return ProjectXDB.chars or {}
 end
 
--- Create frame for event handling
-local frame = CreateFrame("Frame")
-frame:SetScript("OnEvent", function(self, event, ...)
-    addon:OnEvent(event, ...)
-end)
-
-addon.frame = frame
-
 -- Slash command handler
 SLASH_PROJECTX1 = "/projectx"
 SLASH_PROJECTX2 = "/px"
@@ -130,7 +137,11 @@ function addon:HandleCommand(msg)
     elseif msg == "status" then
         print("|cFF00FF00ProjectX|r Status:")
         print("  Version: 0.2.0")
-        print("  Characters tracked: " .. (ProjectXDB.chars and table.getn(ProjectXDB.chars) or 0))
+        local charCount = 0
+        if ProjectXDB.chars then
+            for _ in pairs(ProjectXDB.chars) do charCount = charCount + 1 end
+        end
+        print("  Characters tracked: " .. charCount)
         print("  Locale: " .. (ProjectXDB.locale or "auto"))
     elseif msg == "debug" then
         ProjectXDB.debug = not ProjectXDB.debug
@@ -146,12 +157,3 @@ function addon:HandleCommand(msg)
         end
     end
 end
-
--- Register addon for initialization
-frame:RegisterEvent("ADDON_LOADED")
-frame:SetScript("OnEvent", function(self, event, arg1)
-    if arg1 == addonName then
-        addon:Initialize()
-        self:UnregisterEvent("ADDON_LOADED")
-    end
-end)
