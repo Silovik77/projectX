@@ -1,28 +1,26 @@
 ## Interface: 120100
 ## Title: ProjectX
-## Title-ruRU: ProjectX
-## Notes: Modular addon for tracking activities, professions, currencies and gold
-## Notes-ruRU: Модульный аддон для отслеживания активностей, профессий, валют и золота
-## Author: YourName
-## Version: 0.2.0
-## SavedVariables: ProjectXDB
-## X-Category: Activity, Profession, Economy
-## X-License: MIT
+## Notes: Modular addon for WoW Retail (Midnight/12.1)
+## Version: 0.1.0
+## Author: ProjectX Team
+## SavedVariables: ProjectXDB, ProjectXCharDB
 
-# Core
+# Core Library
 Core\Core.lua
 Core\Characters.lua
 Core\Commands.lua
 Core\UI.lua
 Core\MinimapButton.lua
 
-# Locale
-Locale\Locale.lua
+# Localization
 Locale\enUS.lua
 Locale\ruRU.lua
 
-# Modules
+# Modules - Active
 Modules\Activity\Activity.lua
-Modules\Professions\Professions.lua
-Modules\Currencies\Currencies.lua
-Modules\Accountant\Accountant.lua
+Modules\Activity\ActivityUI.lua
+
+# Modules - Planned (Disabled until implemented)
+# Modules\Professions\Professions.lua
+# Modules\Currencies\Currencies.lua
+# Modules\Accountant\Accountant.lua
