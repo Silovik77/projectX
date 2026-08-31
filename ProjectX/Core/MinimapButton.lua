@@ -4,8 +4,6 @@
 local addonName, addon = ...
 local MinimapButton = {}
 
-local L = addon.Locale
-
 -- Default settings
 local defaults = {
     enabled = true,

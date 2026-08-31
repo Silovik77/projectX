@@ -4,7 +4,12 @@
 local addonName, addon = ...
 local UI = {}
 
-local L = addon.Locale
+-- Защитная функция для получения локализованной строки
+local function LocaleString(key, default)
+    local value = addon.Locale and addon.Locale[key]
+    if value then return value end
+    return default or key
+end
 
 -- Default UI settings
 local defaults = {
@@ -62,7 +67,7 @@ function UI:CreateMainWindow()
     -- Title text
     local title = titleBar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     title:SetPoint("LEFT", titleBar, "LEFT", 8, 0)
-    title:SetText("|cFF00FF00ProjectX|r - " .. L.STATUS)
+    title:SetText("|cFF00FF00ProjectX|r - " .. LocaleString("STATUS", "Status"))
     
     -- Close button
     local closeBtn = CreateFrame("Button", nil, titleBar, "UIPanelCloseButton")
@@ -75,8 +80,8 @@ function UI:CreateMainWindow()
     local tabs = {}
     local tabFrames = {}
     local tabNames = {
-        { id = "activity", text = L.ACTIVITY or "Activity" },
-        { id = "settings", text = L.SETTINGS or "Settings" },
+        { id = "activity", text = LocaleString("ACTIVITY_TITLE", "Activity") },
+        { id = "settings", text = LocaleString("SETTINGS_TITLE", "Settings") },
     }
     
     local tabContainer = CreateFrame("Frame", nil, frame)
@@ -182,7 +187,7 @@ function UI:InitializeActivityTab(frame)
     
     local title = content:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     title:SetPoint("TOP", content, "TOP", 0, -10)
-    title:SetText(L.ACTIVITY_TITLE or "Activity Tracker")
+    title:SetText(LocaleString("ACTIVITY_TITLE", "Activity Tracker"))
     
     local info = content:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     info:SetPoint("TOP", title, "BOTTOM", 0, -10)
@@ -205,27 +210,27 @@ function UI:UpdateActivityTab()
         local text = ""
         
         if summary.raids and next(summary.raids) then
-            text = text .. "|cFFFFD700" .. (L.ACTIVITY_RAIDS or "Raids") .. ":|r " .. table.getn(summary.raids) .. "\n"
+            text = text .. "|cFFFFD700" .. LocaleString("RAID_TRACKED", "Raids") .. ":|r " .. table.getn(summary.raids) .. "\n"
         end
         
         if summary.mythicPlus and next(summary.mythicPlus) then
-            text = text .. "|cFFFFD700" .. (L.ACTIVITY_MYTHIC_PLUS or "Mythic+") .. ":|r " .. table.getn(summary.mythicPlus) .. "\n"
+            text = text .. "|cFFFFD700" .. LocaleString("MYTHIC_PLUS_RUNS", "Mythic+") .. ":|r " .. table.getn(summary.mythicPlus) .. "\n"
         end
         
         if summary.vault and summary.vault.lastUpdate then
-            text = text .. "|cFFFFD700" .. (L.ACTIVITY_VAULT or "Great Vault") .. ":|r " .. (L.ACTIVITY_COMPLETED or "Updated") .. "\n"
+            text = text .. "|cFFFFD700" .. LocaleString("GREAT_VAULT_UPDATED", "Great Vault") .. ":|r " .. LocaleString("ACTIVITY_COMPLETED", "Updated") .. "\n"
         end
         
         if summary.quests and summary.quests.daily then
             local dailyCount = 0
             for _ in pairs(summary.quests.daily) do dailyCount = dailyCount + 1 end
-            text = text .. "|cFFFFD700" .. (L.ACTIVITY_DAILY_QUESTS or "Daily Quests") .. ":|r " .. dailyCount .. "\n"
+            text = text .. "|cFFFFD700" .. LocaleString("DAILY_QUESTS", "Daily Quests") .. ":|r " .. dailyCount .. "\n"
         end
         
         if summary.quests and summary.quests.weekly then
             local weeklyCount = 0
             for _ in pairs(summary.quests.weekly) do weeklyCount = weeklyCount + 1 end
-            text = text .. "|cFFFFD700" .. (L.ACTIVITY_WEEKLY_QUESTS or "Weekly Quests") .. ":|r " .. weeklyCount .. "\n"
+            text = text .. "|cFFFFD700" .. LocaleString("WEEKLY_QUESTS", "Weekly Quests") .. ":|r " .. weeklyCount .. "\n"
         end
         
         if text == "" then
@@ -242,12 +247,12 @@ function UI:InitializeSettingsTab(frame)
     
     local title = content:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     title:SetPoint("TOP", content, "TOP", 0, -20)
-    title:SetText(L.SETTINGS or "Settings")
+    title:SetText(LocaleString("SETTINGS_TITLE", "Settings"))
     
     -- Minimap button toggle
     local mmBtnLabel = content:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     mmBtnLabel:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -20)
-    mmBtnLabel:SetText(L.SHOW_MINIMAP_BUTTON or "Show minimap button:")
+    mmBtnLabel:SetText(LocaleString("SHOW_MINIMAP_BUTTON", "Show minimap button:"))
     
     local mmBtnCheck = CreateFrame("CheckButton", "ProjectXMMBtnCheck", content, "InterfaceOptionsCheckButtonTemplate")
     mmBtnCheck:SetPoint("LEFT", mmBtnLabel, "RIGHT", 10, 0)
@@ -268,7 +273,7 @@ function UI:InitializeSettingsTab(frame)
     -- Window scale slider
     local scaleLabel = content:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     scaleLabel:SetPoint("TOPLEFT", mmBtnCheck, "BOTTOMLEFT", -2, -20)
-    scaleLabel:SetText(L.WINDOW_SCALE or "Window Scale:")
+    scaleLabel:SetText(LocaleString("WINDOW_SCALE", "Window Scale:"))
     
     local scaleSlider = CreateFrame("Slider", "ProjectXScaleSlider", content, "OptionsSliderTemplate")
     scaleSlider:SetPoint("LEFT", scaleLabel, "RIGHT", 10, 0)
@@ -294,7 +299,7 @@ function UI:InitializeSettingsTab(frame)
     local resetBtn = CreateFrame("Button", "ProjectXResetPosBtn", content, "UIPanelButtonTemplate")
     resetBtn:SetPoint("TOPLEFT", scaleSlider, "BOTTOMLEFT", -2, -20)
     resetBtn:SetSize(120, 22)
-    resetBtn:SetText(L.RESET_POSITION or "Reset Position")
+    resetBtn:SetText(LocaleString("RESET_WINDOW_POSITION", "Reset Position"))
     resetBtn:SetScript("OnClick", function()
         ProjectXDB.ui.windowPos = { x = 100, y = -100 }
         if addon.UI and addon.UI.mainFrame then
