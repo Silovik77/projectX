@@ -230,6 +230,8 @@ end
 
 -- Initialize minimap button
 function MinimapButton:Initialize()
+    EnsureDB() -- Гарантируем инициализацию БД
+    
     if not ProjectXDB.minimapButton then
         ProjectXDB.minimapButton = {}
     end
@@ -241,13 +243,15 @@ function MinimapButton:Initialize()
         end
     end
     
-    if not ProjectXDB.minimapButton.enabled then return end
-    
-    self:Create()
-    self:UpdatePosition()
-    self:Show()
-    
-    print("|cFF00FF00ProjectX|r: Minimap button loaded")
+    -- Принудительно показываем кнопку если включено в БД
+    if ProjectXDB.ui and ProjectXDB.ui.minimapButton ~= false then
+        self:Create()
+        self:UpdatePosition()
+        self:Show()
+        print("|cFF00FF00ProjectX|r: Minimap button loaded")
+    else
+        self:Hide()
+    end
 end
 
 addon.MinimapButton = MinimapButton

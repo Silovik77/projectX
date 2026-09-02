@@ -1,69 +1,46 @@
-```
-# Lua build artifacts (if any)
-*.luac
+# Compiled and build artifacts
+*.pyc
+__pycache__/
+*.o
+*.obj
+*.class
+*.exe
+*.dll
+*.so
+*.a
+*.out
 
 # Dependencies
-?.lua.d/
+node_modules/
+venv/
+.venv/
+.env
+.env.local
+.env.*
 
 # Logs and temp files
 *.log
 *.tmp
 *.swp
-
-# Environment
-.env
-.env.local
-.env.*
+*.swo
 
 # Editors
 .vscode/
 .idea/
 
-# OS
+# Coverage and testing
+.coverage
+coverage/
+htmlcov/
+
+# OS generated files
 .DS_Store
 Thumbs.db
 
-# Coverage
-coverage/
-htmlcov/
-.coverage
-
-# Python (if Python components exist)
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-env/
-venv/
-.venv/
-pip-log.txt
-pip-delete-this-directory.txt
-.tox/
-.coverage
-.nox/
-*.cover
-*.log
-*.pot
-*.pyc
-*.pyo
-.pytest_cache/
-.mypy_cache/
-.hypothesis/
-
-# Build directories (general)
-build/
+# Build systems
 dist/
-*.egg
-*.egg-info/
-.eggs/
-.installed.cfg
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.whl
-develop-eggs/
-```
+build/
+target/
+.gradle/
+.mypy_cache/
+.pytest_cache/

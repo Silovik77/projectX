@@ -206,6 +206,36 @@ function UI:CreateMainWindow()
     self:InitializeActivityTab(tabFrames.activity)
     self:InitializeSettingsTab(tabFrames.settings)
     
+    -- ДОБАВИТЬ: Ручка для изменения размера (Right Bottom Corner)
+    local resizer = CreateFrame("Button", nil, frame)
+    resizer:SetSize(16, 16)
+    resizer:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -4, 4)
+    resizer:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up")
+    resizer:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight")
+    resizer:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Down")
+    
+    resizer:SetScript("OnMouseDown", function(self, button)
+        if button == "LeftButton" then
+            frame:StartSizing("BOTTOMRIGHT")
+        end
+    end)
+    
+    resizer:SetScript("OnMouseUp", function(self, button)
+        if button == "LeftButton" then
+            frame:StopMovingOrSizing()
+            -- Сохраняем размер
+            local w, h = frame:GetSize()
+            ProjectXDB.ui.width = w
+            ProjectXDB.ui.height = h
+        end
+    end)
+
+    -- Восстанавливаем размер из БД
+    EnsureDB()
+    if ProjectXDB.ui.width and ProjectXDB.ui.height then
+        frame:SetSize(ProjectXDB.ui.width, ProjectXDB.ui.height)
+    end
+    
     self.mainFrame = frame
     return frame
 end
@@ -250,67 +280,32 @@ end
 
 -- Initialize Activity tab
 function UI:InitializeActivityTab(frame)
-    local scroll = CreateFrame("ScrollFrame", nil, frame, "UIPanelScrollFrameTemplate")
-    scroll:SetPoint("TOPLEFT", frame, "TOPLEFT", 10, -10)
-    scroll:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -30, 10)
-    
-    local content = CreateFrame("Frame", nil, scroll)
-    content:SetSize(scroll:GetWidth(), 400)
-    scroll:SetScrollChild(content)
-    
-    local title = content:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-    title:SetPoint("TOP", content, "TOP", 0, -10)
-    title:SetText(LocaleString("ACTIVITY_TITLE", "Activity Tracker"))
-    
-    local info = content:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-    info:SetPoint("TOP", title, "BOTTOM", 0, -10)
-    info:SetJustifyH("LEFT")
-    info:SetWidth(content:GetWidth() - 20)
-    info:SetText("Loading activity data...")
-    
-    frame.info = info
-    frame.content = content
+    -- Пустой контейнер, контент рендерится через Activity:Render()
+    local container = CreateFrame("Frame", nil, frame)
+    container:SetAllPoints()
+    frame.container = container
 end
 
 -- Update Activity tab
 function UI:UpdateActivityTab()
     if not self.mainFrame or not self.mainFrame.tabFrames.activity then return end
     local frame = self.mainFrame.tabFrames.activity
-    if not frame.info then return end
+    if not frame.container then return end
     
-    if addon.Activity then
-        local summary = addon.Activity:GetSummary()
-        local text = ""
-        
-        if summary.raids and next(summary.raids) then
-            text = text .. "|cFFFFD700" .. LocaleString("RAID_TRACKED", "Raids") .. ":|r " .. table.getn(summary.raids) .. "\n"
+    if addon.Activity and addon.Activity.Render then
+        -- Очищаем контейнер и рендерим заново
+        for _, child in ipairs({frame.container:GetChildren()}) do
+            child:SetParent(nil)
+            child:Hide()
         end
-        
-        if summary.mythicPlus and next(summary.mythicPlus) then
-            text = text .. "|cFFFFD700" .. LocaleString("MYTHIC_PLUS_RUNS", "Mythic+") .. ":|r " .. table.getn(summary.mythicPlus) .. "\n"
+        addon.Activity:Render()
+        -- Перемещаем контент в контейнер вкладки
+        if addon.Activity.frameContent then
+            addon.Activity.frameContent:SetParent(frame.container)
+            addon.Activity.frameContent:SetPoint("TOPLEFT", 5, -5)
+            addon.Activity.frameContent:SetPoint("BOTTOMRIGHT", -5, 5)
+            addon.Activity.frameContent:Show()
         end
-        
-        if summary.vault and summary.vault.lastUpdate then
-            text = text .. "|cFFFFD700" .. LocaleString("GREAT_VAULT_UPDATED", "Great Vault") .. ":|r " .. LocaleString("ACTIVITY_COMPLETED", "Updated") .. "\n"
-        end
-        
-        if summary.quests and summary.quests.daily then
-            local dailyCount = 0
-            for _ in pairs(summary.quests.daily) do dailyCount = dailyCount + 1 end
-            text = text .. "|cFFFFD700" .. LocaleString("DAILY_QUESTS", "Daily Quests") .. ":|r " .. dailyCount .. "\n"
-        end
-        
-        if summary.quests and summary.quests.weekly then
-            local weeklyCount = 0
-            for _ in pairs(summary.quests.weekly) do weeklyCount = weeklyCount + 1 end
-            text = text .. "|cFFFFD700" .. LocaleString("WEEKLY_QUESTS", "Weekly Quests") .. ":|r " .. weeklyCount .. "\n"
-        end
-        
-        if text == "" then
-            text = "No activity data yet."
-        end
-        
-        frame.info:SetText(text)
     end
 end
 
