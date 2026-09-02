@@ -1,0 +1,26 @@
+## Interface: 120100
+## Title: ProjectX
+## Notes: Modular addon for WoW Retail (Midnight/12.1)
+## Version: 0.1.0
+## Author: ProjectX Team
+## SavedVariables: ProjectXDB, ProjectXCharDB
+
+# Core Library
+Core\Core.lua
+Core\Characters.lua
+Core\Commands.lua
+Core\UI.lua
+Core\MinimapButton.lua
+
+# Localization
+Locale\enUS.lua
+Locale\ruRU.lua
+
+# Modules - Active
+Modules\Activity\Activity.lua
+Modules\Activity\ActivityUI.lua
+
+# Modules - Planned (Disabled until implemented)
+# Modules\Professions\Professions.lua
+# Modules\Currencies\Currencies.lua
+# Modules\Accountant\Accountant.lua
