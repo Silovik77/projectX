@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Лесной забег — 3D</title>
+  <link rel="icon" type="image/png" href="assets/apple.png" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; overflow: hidden; background: #87ceeb;
+      font-family: Arial, sans-serif; user-select: none; -webkit-user-select: none; touch-action: none; }
+    #canvas-wrap { position: fixed; inset: 0; }
+    canvas { display: block; }
+
+    .screen { position: fixed; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; z-index: 20; }
+    .hidden { display: none !important; }
+
+    /* Главное меню */
+    #screen-menu { background: linear-gradient(#5db9f0 0%, #a5e0ff 55%, #6ec63f 55.2%, #57a832 100%); }
+    .game-title { font-size: 42px; font-weight: bold; color: #fff;
+      text-shadow: 0 0 0 #e2725b, 3px 3px 0 #e2725b, -3px 3px 0 #e2725b, 3px -3px 0 #e2725b,
+      -3px -3px 0 #e2725b, 0 6px 12px rgba(0,0,0,0.25); margin-bottom: 8px; text-align: center; }
+    #menu-pet { height: 220px; margin: 10px 0; filter: drop-shadow(0 8px 8px rgba(0,0,0,0.25)); }
+    .menu-hello { font-size: 22px; color: #5b3a29; margin-bottom: 14px; }
+    .btn { border: 4px solid rgba(255,255,255,0.9); border-radius: 18px; color: #fff;
+      font-weight: bold; font-size: 26px; padding: 14px 0; width: 240px; text-align: center;
+      cursor: pointer; margin: 7px 0; box-shadow: 0 4px 0 rgba(0,0,0,0.18); }
+    .btn:active { transform: translateY(3px); box-shadow: none; }
+    .btn-green { background: #6fbf4a; } .btn-orange { background: #e2a25b; }
+    .btn-blue { background: #5b9ec2; } .btn-brown { background: #b08968; }
+    .btn-small { width: 150px; font-size: 20px; padding: 10px 0; }
+    .row { display: flex; gap: 14px; }
+    .balance { position: fixed; top: 16px; left: 16px; display: flex; align-items: center;
+      gap: 8px; font-size: 28px; font-weight: bold; color: #fff;
+      text-shadow: 2px 2px 0 #8a6d1d; z-index: 30; }
+    .balance img { width: 34px; height: 34px; }
+    #menu-record { font-size: 20px; font-weight: bold; color: #fff; text-shadow: 2px 2px 0 #5b9e4d; margin-top: 6px; }
+
+    /* Панели */
+    .panel { background: rgba(255,255,255,0.97); border: 6px solid #e2a25b; border-radius: 24px;
+      padding: 22px; width: min(92vw, 440px); max-height: 86vh; overflow-y: auto; }
+    .panel h2 { text-align: center; color: #5b3a29; font-size: 30px; margin-bottom: 14px; }
+    #screen-shop, #screen-quests, #screen-leaderboard { background: rgba(0,0,0,0.45); }
+    .row { flex-wrap: wrap; justify-content: center; }
+
+    /* Таблица рекордов */
+    .lb-sec { text-align: center; color: #5b9ec2; font-weight: bold; margin: 12px 0 6px; font-size: 18px; }
+    .lb-entry { display: flex; align-items: center; gap: 10px; border: 3px solid #e2a25b;
+      border-radius: 12px; padding: 8px 14px; margin-bottom: 8px; background: #fffdf7;
+      font-weight: bold; color: #5b3a29; font-size: 18px; }
+    .lb-entry .rank { font-size: 22px; width: 34px; text-align: center; }
+    .lb-entry .dist { margin-left: auto; color: #8a6d1d; }
+    .lb-entry.me { border-color: #6fbf4a; background: #f1ffe9; }
+    .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .card { border: 4px solid #e2a25b; border-radius: 16px; padding: 10px; text-align: center;
+      background: #fffdf7; }
+    .card img { height: 90px; }
+    .card .name { font-weight: bold; color: #5b3a29; font-size: 18px; margin: 4px 0 8px; }
+    .card .btn { width: 100%; font-size: 17px; padding: 8px 0; margin: 0; border-width: 3px; }
+    .card.locked img { filter: grayscale(0.7) opacity(0.75); }
+    .quest { border: 4px solid #5b9ec2; border-radius: 14px; padding: 12px; margin-bottom: 12px; background: #fff; }
+    .quest .qname { font-weight: bold; color: #5b3a29; font-size: 18px; }
+    .qbar { height: 20px; background: #d9d9d9; border-radius: 10px; margin: 8px 0; overflow: hidden; }
+    .qbar > div { height: 100%; background: #5b9ec2; border-radius: 10px; }
+    .qbar.done > div { background: #6fbf4a; }
+    .quest .btn { width: 100%; font-size: 17px; padding: 8px 0; margin: 0; border-width: 3px; }
+    .panel .btn { margin-left: auto; margin-right: auto; }
+
+    /* HUD */
+    #hud { position: fixed; inset: 0; z-index: 15; pointer-events: none; }
+    #hud .balance { position: absolute; }
+    #hud-meters { position: absolute; top: 18px; left: 50%; transform: translateX(-50%);
+      font-size: 30px; font-weight: bold; color: #fff; text-shadow: 2px 2px 0 #5b3a29; }
+    #hud-effects { position: absolute; top: 64px; left: 16px; display: flex; gap: 8px; }
+    #hud-effects img { width: 40px; height: 40px; opacity: 0; transition: opacity 0.2s; }
+    #btn-pause { position: absolute; top: 12px; right: 14px; pointer-events: auto;
+      width: 52px; height: 52px; border-radius: 14px; background: rgba(91,62,41,0.65);
+      border: 3px solid #fff; color: #fff; font-size: 20px; font-weight: bold; cursor: pointer; }
+    .btn-sound { position: absolute; top: 12px; right: 76px; pointer-events: auto;
+      width: 52px; height: 52px; border-radius: 14px; background: rgba(91,62,41,0.65);
+      border: 3px solid #fff; color: #fff; font-size: 22px; cursor: pointer; line-height: 1; }
+    #screen-menu .btn-sound { position: absolute; top: 12px; right: 14px; }
+    #btn-lang { position: absolute; top: 12px; right: 76px; width: 52px; height: 52px;
+      border-radius: 14px; background: rgba(91,62,41,0.65); border: 3px solid #fff;
+      color: #fff; font-size: 16px; font-weight: bold; cursor: pointer; line-height: 1; }
+
+    /* Пауза и итоги */
+    #screen-pause, #screen-results { background: rgba(0,0,0,0.5); }
+    .result-line { font-size: 24px; color: #5b3a29; margin: 6px 0; text-align: center; }
+    .result-coins { display: flex; align-items: center; justify-content: center; gap: 8px;
+      font-size: 26px; font-weight: bold; color: #8a6d1d; margin: 6px 0 14px; }
+    .result-coins img { width: 30px; height: 30px; }
+    #result-record { color: #e2a25b; font-weight: bold; animation: pulse 0.8s infinite alternate; }
+    @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.12); } }
+    .toast { position: fixed; top: 110px; left: 50%; transform: translateX(-50%);
+      background: rgba(255,255,255,0.95); border: 4px solid #e2a25b; border-radius: 14px;
+      color: #5b3a29; font-weight: bold; font-size: 20px; padding: 10px 18px; z-index: 40; }
+
+    /* Туториал для маленьких игроков */
+    #tutorial { position: absolute; bottom: 7%; left: 50%; transform: translateX(-50%);
+      background: rgba(43,29,16,0.62); border: 3px solid rgba(255,255,255,0.85);
+      border-radius: 20px; padding: 12px 22px; text-align: center; color: #fff;
+      font-weight: bold; font-size: 20px; line-height: 1.5; }
+    #tutorial .tut-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 3px 0; }
+    .tut-key { display: inline-block; min-width: 40px; padding: 2px 8px; border-radius: 10px;
+      background: rgba(255,255,255,0.92); color: #5b3a29; font-size: 22px;
+      box-shadow: 0 3px 0 rgba(0,0,0,0.3); animation: tutBounce 0.9s infinite; }
+    .tut-key:nth-child(2) { animation-delay: 0.15s; }
+    @keyframes tutBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+    #tutorial .tut-sub { font-size: 16px; opacity: 0.92; margin-top: 4px; }
+  </style>
+  <script type="module" crossorigin src="./assets/index-DCMQ2HOA.js"></script>
+</head>
+<body>
+  <div id="canvas-wrap"></div>
+
+  <!-- Главное меню -->
+  <div id="screen-menu" class="screen">
+    <button class="btn-sound" title="Звук">🔊</button>
+    <button id="btn-lang" title="Language">EN</button>
+    <div class="balance"><img src="assets/apple.png" alt=""><span id="menu-coins">0</span></div>
+    <div class="game-title" id="game-title">Зверята<br>и монетки</div>
+    <img id="menu-pet" src="assets/hero_side.png" alt="зверёк" />
+    <div class="menu-hello" id="menu-hello">Привет! Я — Лисёнок!</div>
+    <div class="btn btn-green" id="btn-play">Беги! 🐾</div>
+    <div class="row">
+      <div class="btn btn-orange btn-small" id="btn-shop">Магазин</div>
+      <div class="btn btn-blue btn-small" id="btn-quests">Задания</div>
+      <div class="btn btn-brown btn-small" id="btn-leaderboard">Рекорды</div>
+    </div>
+    <div id="menu-record"></div>
+  </div>
+
+  <!-- Магазин -->
+  <div id="screen-shop" class="screen hidden">
+    <div class="panel">
+      <h2 id="shop-title">Магазин зверят</h2>
+      <div class="balance" style="position:static;margin-bottom:10px"><img src="assets/apple.png" alt=""><span id="shop-coins">0</span></div>
+      <div class="shop-grid" id="shop-grid"></div>
+      <div class="btn btn-orange btn-small" id="btn-ad-apples" style="margin-top:12px">📺 +50 яблочек за рекламу</div>
+      <div class="btn btn-brown btn-small" id="btn-shop-back" style="margin-top:10px">Назад</div>
+    </div>
+  </div>
+
+  <!-- Задания -->
+  <div id="screen-quests" class="screen hidden">
+    <div class="panel">
+      <h2 id="quests-title">Задания</h2>
+      <div id="quests-list"></div>
+      <div class="btn btn-brown btn-small" id="btn-quests-back" style="margin-top:6px">Назад</div>
+    </div>
+  </div>
+
+  <!-- Таблица рекордов -->
+  <div id="screen-leaderboard" class="screen hidden">
+    <div class="panel">
+      <h2 id="lb-title">Рекорды</h2>
+      <div id="lb-list"></div>
+      <div class="btn btn-brown btn-small" id="btn-lb-back" style="margin-top:10px">Назад</div>
+    </div>
+  </div>
+
+  <!-- HUD -->
+  <div id="hud" class="hidden">
+    <div class="balance"><img src="assets/apple.png" alt=""><span id="hud-coins">0</span></div>
+    <div id="hud-meters">0 м</div>
+    <div id="hud-effects">
+      <img src="assets/magnet.png" id="fx-magnet" alt="">
+      <img src="assets/x2.png" id="fx-x2" alt="">
+      <img src="assets/rocket.png" id="fx-rocket" alt="">
+    </div>
+    <div id="tutorial" class="hidden">
+      <div class="tut-row"><span class="tut-key">◀</span><span class="tut-key">▶</span><span id="tut-line1">— перестройся</span></div>
+      <div class="tut-row"><span class="tut-key">▲</span><span id="tut-line2">— прыгни через пенёк</span></div>
+      <div class="tut-sub" id="tut-sub">Собирай яблочки и бонусы! (или свайпы: вбок — бег, вверх/тап — прыжок)</div>
+    </div>
+    <button class="btn-sound" title="Звук">🔊</button>
+    <button id="btn-pause">❚❚</button>
+  </div>
+
+  <!-- Пауза -->
+  <div id="screen-pause" class="screen hidden">
+    <div class="panel" style="text-align:center">
+      <h2 id="pause-title">Пауза</h2>
+      <div class="btn btn-green" id="btn-resume">Продолжить</div>
+      <div class="btn btn-brown" id="btn-pause-menu">В меню</div>
+    </div>
+  </div>
+
+  <!-- Итоги -->
+  <div id="screen-results" class="screen hidden">
+    <div class="panel" style="text-align:center">
+      <h2 id="results-title">Забег окончен!</h2>
+      <div class="result-line" id="result-record">🏆 Новый рекорд!</div>
+      <div class="result-line" id="result-meters">Дистанция: 0 м</div>
+      <div class="result-coins"><img src="assets/apple.png" alt=""><span id="result-coins">+0</span></div>
+      <div class="btn btn-blue hidden" id="btn-double">📺 Удвоить яблочки</div>
+      <div class="btn btn-orange hidden" id="btn-continue" style="margin-top:10px">▶ Продолжить (реклама)</div>
+      <div class="btn btn-brown" id="btn-results-menu">В меню</div>
+    </div>
+  </div>
+
+  <script src="https://yandex.ru/games/sdk/v2"></script>
+</body>
+</html>

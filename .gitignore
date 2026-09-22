@@ -1,0 +1,63 @@
+```
+# Build artifacts
+dist/
+build/
+target/
+*.js
+
+# Dependencies
+node_modules/
+vendor/
+
+# Compressed files
+*.zip
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# Editor/IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.local
+*.env.*
+
+# Coverage reports
+coverage/
+htmlcov/
+*.coverage
+
+# Python specific
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# Godot specific
+.godot/
+*.import
+
+# Assets backup/extraction
+extracted_game/
+godot_project/
+```
